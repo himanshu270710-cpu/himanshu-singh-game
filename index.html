@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Himanshu Singh</title>
+
+<style>
+body{
+  margin:0;
+  background:#111;
+  color:white;
+  text-align:center;
+  font-family:Arial;
+  touch-action:manipulation;
+}
+
+h2{margin:10px}
+
+canvas{
+  background:#222;
+  border:2px solid white;
+  width:95%;
+  max-width:360px;
+}
+
+button{
+  font-size:20px;
+  padding:14px 25px;
+  margin:6px;
+  border-radius:10px;
+  touch-action:manipulation;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Himanshu Singh</h2>
+
+<p>
+Score: <span id="score">0</span>
+&nbsp;&nbsp;
+Level: <span id="level">1</span>
+</p>
+
+<canvas id="game" width="360" height="500"></canvas>
+
+<br>
+
+<button id="start">START GAME</button>
+<button id="restart" style="display:none">RESTART</button>
+
+<br>
+
+<button id="left">LEFT</button>
+<button id="right">RIGHT</button>
+
+<script>
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+let player;
+let enemy;
+let score;
+let level;
+let speed;
+let gameRunning = false;
+let animation;
+
+function resetGame(){
+
+  player = {
+    x:160,
+    y:440,
+    w:40,
+    h:40
+  };
+
+  enemy = {
+    x:Math.random()*320,
+    y:-40,
+    w:40,
+    h:40
+  };
+
+  score=0;
+  level=1;
+  speed=4;
+
+  document.getElementById("score").textContent=score;
+  document.getElementById("level").textContent=level;
+}
+
+function moveLeft(){
+
+  if(!gameRunning) return;
+
+  player.x-=35;
+
+  if(player.x<0){
+    player.x=0;
+  }
+}
+
+function moveRight(){
+
+  if(!gameRunning) return;
+
+  player.x+=35;
+
+  if(player.x>320){
+    player.x=320;
+  }
+}
+
+function startGame(){
+
+  resetGame();
+
+  gameRunning=true;
+
+  document.getElementById("start").style.display="none";
+  document.getElementById("restart").style.display="inline-block";
+
+  gameLoop();
+}
+
+function restartGame(){
+
+  cancelAnimationFrame(animation);
+
+  resetGame();
+
+  gameRunning=true;
+
+  gameLoop();
+}
+
+function gameLoop(){
+
+  if(!gameRunning) return;
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  ctx.fillStyle="lime";
+  ctx.fillRect(
+    player.x,
+    player.y,
+    player.w,
+    player.h
+  );
+
+  ctx.fillStyle="red";
+  ctx.fillRect(
+    enemy.x,
+    enemy.y,
+    enemy.w,
+    enemy.h
+  );
+
+  enemy.y+=speed;
+
+  if(enemy.y>canvas.height){
+
+    enemy.y=-40;
+    enemy.x=Math.random()*320;
+
+    score++;
+
+    document.getElementById("score").textContent=score;
+
+    if(score%5===0){
+
+      level++;
+      speed++;
+
+      document.getElementById("level").textContent=level;
+    }
+  }
+
+  if(
+    player.x < enemy.x+enemy.w &&
+    player.x+player.w > enemy.x &&
+    player.y < enemy.y+enemy.h &&
+    player.y+player.h > enemy.y
+  ){
+
+    gameRunning=false;
+
+    alert(
+      "GAME OVER!\nScore: "+
+      score+
+      "\nLevel: "+
+      level
+    );
+
+    return;
+  }
+
+  animation=requestAnimationFrame(gameLoop);
+}
+
+document.getElementById("start").addEventListener(
+  "touchstart",
+  function(e){
+    e.preventDefault();
+    startGame();
+  }
+);
+
+document.getElementById("restart").addEventListener(
+  "touchstart",
+  function(e){
+    e.preventDefault();
+    restartGame();
+  }
+);
+
+document.getElementById("left").addEventListener(
+  "touchstart",
+  function(e){
+    e.preventDefault();
+    moveLeft();
+  }
+);
+
+document.getElementById("right").addEventListener(
+  "touchstart",
+  function(e){
+    e.preventDefault();
+    moveRight();
+  }
+);
+
+document.getElementById("start").addEventListener(
+  "click",
+  startGame
+);
+
+document.getElementById("restart").addEventListener(
+  "click",
+  restartGame
+);
+
+document.getElementById("left").addEventListener(
+  "click",
+  moveLeft
+);
+
+document.getElementById("right").addEventListener(
+  "click",
+  moveRight
+);
+
+resetGame();
+
+</script>
+
+</body>
+</html>
